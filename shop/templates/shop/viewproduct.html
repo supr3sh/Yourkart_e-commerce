@@ -1,0 +1,103 @@
+{% extends 'layout.html' %}
+{% block title %} Yourkart | {{product.product_name}} {% endblock %}
+{% block body %}
+
+<div class="container my-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="row">
+                <img src="/media/{{product.product_img}}">
+            </div>
+            
+            <span id="divpr{{product.id}}" class="divpr">
+                <button id="pr{{product.id}}" class="btn btn-primary cart">Add To Cart</button>
+            </span>
+            <a href="#"><button class="btn btn-primary">Buy Now</button></a>
+        </div>
+
+        <div class="col-md-8">
+            <h5 id="namepr{{product.id}}">{{product.product_name}}</h5>
+            <p><b>Rs.{{product.price}} </b></p>
+            <p>{{product.product_desc}}</p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+    //jQuery starts here//
+    var idstr=""
+    updatePopover(cart);
+    $('.cart').click(function() {
+      idstr = this.id.toString();
+      if (cart[idstr] != undefined) {
+          cart[idstr][0] = cart[idstr][0] + 1;
+      } else {
+          qty = 1;
+          name = document.getElementById('name' + idstr).innerHTML;
+          cart[idstr] = [qty, name];
+      }
+      updateCart(cart, idstr);
+    });
+    updateCart(cart, idstr);
+    function clearCart() {
+        cart = JSON.parse(localStorage.getItem('cart'));
+        localStorage.clear();
+        cart = {};
+        updateCart(cart, idstr);
+    }
+    function updatePopover(cart) {
+        var popStr = "";
+        popStr = popStr + "<div class='mx-2 my-2'>";
+        var i=1;
+        for(var item in cart) {
+        if(cart[item][0] != 0) {
+            popStr = popStr + "<b>" + i + "</b>. ";
+            popStr = popStr + cart[item][1].slice(0, 19) + "... QTY: " + cart[item][0] + "<br>";
+            i = i+1;
+        }
+        }
+        popStr = popStr + "</div>"
+        document.getElementById('popcart').setAttribute('data-bs-content', popStr);
+        $(document).ready(function(){
+        $('[data-bs-toggle="popover"]').popover('show');
+        });
+    }
+    function updateCart(cart, id) {
+      for(var item in cart) {
+            if(item == id) {
+                document.getElementById('div' + item).innerHTML = "<button id='minus" + item + "'style='margin-bottom: -1px' class='btn btn-primary minus mx-auto'>-</button> <span id='val" + item + "''>" + cart[item][0] + "</span> <button id='plus" + item + "'style='margin-bottom: -1px' class='btn btn-primary plus mx-auto'> + </button>";
+            }
+        }
+      localStorage.setItem('cart', JSON.stringify(cart));
+      updateButton(cart);
+      updatePopover(cart);
+    }
+
+    $('.divpr').on("click", "button.minus", function() {
+        a = this.id.slice(7, );
+        if(cart['pr' + a][0] <= 1) {
+            cart['pr' + a][0] = 0;
+        } else {
+            cart['pr' + a][0] = cart['pr' + a][0] - 1;
+        }
+        document.getElementById('valpr' + a).innerHTML = cart['pr' + a][0];
+        updateCart(cart, idstr);
+    });
+    $('.divpr').on("click", "button.plus", function() {
+        a = this.id.slice(6, );
+        if(cart['pr' + a] == undefined || cart['pr' + a][0] == NaN || cart['pr' + a][0] == null) {
+            cart['pr' + a][0] = 1;
+        } else {
+            cart['pr' + a][0] = cart['pr' + a][0] + 1;
+        }
+        document.getElementById('valpr' + a).innerHTML = cart['pr' + a][0];
+        updateCart(cart, idstr);
+    });
+
+    </script>
+
+{% endblock %}

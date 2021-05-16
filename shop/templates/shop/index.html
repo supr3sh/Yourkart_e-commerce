@@ -1,0 +1,217 @@
+{% extends 'layout.html' %}
+{% block title %} Yourkart | shop {% endblock %}
+
+{% block css %}
+<style>
+  @media screen and (max-width: 700px) {
+    #card {
+      width: 100%;
+      display: block;
+      margin-bottom: 20px;
+    }
+    #prod_desc, #prod_price {
+      width: 150px;
+    }
+    .flex-display {
+      display: block;
+    }
+  }
+  @media screen and (max-width: 900px) {
+    .flex-display {
+      display: flexbox;
+      justify-content: safe;
+      width: 120%;
+    }
+    .view-btn {
+      bottom: 0px;
+      position: absolute;
+    }
+    .cart-btn {
+      margin-bottom: 50px;
+      bottom: 50px;
+      position: absolute;
+    }
+  }
+  img {
+    margin: auto;
+  }
+  .cart-btn {
+    margin-bottom: 10px;
+    bottom: 50px;
+    position: absolute;
+    width: 80%;;
+  }
+  .minus, .plus {
+    margin-bottom: 10px;
+    bottom: 50px;
+  }
+  .flex-display {
+    display: flex;
+    padding: 20px;
+    margin-left: 100px;
+  }
+  .flex-item {
+  margin: 10px;
+  padding: 20px;
+  }
+  #prod_price {
+    margin-left: 25%;
+  }
+  
+  #prod_desc {
+    overflow: hidden;
+    border: none;
+    height: 100px;
+    width: 90%;
+    padding: 5px;
+  }
+  .view-btn {
+    margin-bottom: 10px;
+    bottom: 10px;
+    position: absolute;
+    width: 80%;
+  }
+</style>
+
+{% endblock %}
+
+{% block body %}
+<!-- carousel -->
+<div class="container">
+      {% load static %}
+      <div id="carouselExampleDark" class="carousel carousel-dark slide my-3" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+          <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+          <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="1" aria-label="Slide 2"></button>
+        </div>
+        <div class="carousel-inner">
+          <div class="carousel-item active" data-bs-interval="10000">
+            <img src=" {% static 'shop/new-arrival.jpg' %}" height="300px"  class="d-block w-100" alt="...">
+            <div class="carousel-caption d-none d-md-block">
+            </div>
+          </div>
+          <div class="carousel-item" data-bs-interval="10000">
+            <img src=" {% static 'shop/sale.jpg' %}" height="300px"  class="d-block w-100" alt="...">
+            <div class="carousel-caption d-none d-md-block">
+            </div>
+          </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleDark"  data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleDark"  data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+</div>
+
+<div class="flex-display" id="card">
+{% for i in products %}
+<div class="card flex-item align-items-center" style="width: 18rem;">
+  <img src='/media/{{i.product_img}}' height="200vh" width="200vw" class="card-img-top w-100" alt="...">
+  <div class="card-body">
+    <h5 class="card-title" id="namepr{{i.id}}" style="height: 50px; width: 200px;">{{i.product_name}}</h5>
+    <div>
+      <p class="card-text" id="prod_desc">{{i.product_desc|slice:"0:50"}}...</p>
+      <h5 style="margin-left: 25%;" class="my-3">Rs. <span id="pricepr{{i.id}}">{{i.price}}</span></h5>
+    </div>
+    <span id="divpr{{i.id}}" class="divpr">
+      <button id="pr{{i.id}}" class="btn btn-primary cart">Add To Cart</button>
+    </span>
+    <a href="/shop/productView/{{i.id}}"><button id="qv{{i.id}}" class="btn btn-primary cart">QuickView</button></a>
+  </div>
+</div>
+{% if forloop.counter|divisibleby:4 and forloop.counter > 0 %}
+  </div><br><div class="flex-display" id="card">
+{% endif %}
+{% endfor %}
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+<script>
+  {%if msg|length != 0 %}
+    alert('{{msg}}');
+    window.location.href="/"
+  {%endif%}
+  //jQuery starts here//
+  $('.divpr').on('click', 'button.cart', function(){
+    var idstr = this.id.toString();
+    if (cart[idstr] != undefined) {
+        cart[idstr][0] = cart[idstr][0] + 1;
+    } else {
+        qty = 1;
+        name = document.getElementById('name'+idstr).innerHTML;
+        price = document.getElementById('price'+idstr).innerHTML;
+        cart[idstr] = [qty, name, parseInt(price)];
+    }
+    updateCart(cart);
+  });
+  updateCart(cart);
+
+  function clearCart() {
+    cart = JSON.parse(localStorage.getItem('cart'));
+    for (var item in cart) {
+        document.getElementById('div' + item).innerHTML = '<button id="' + item + '" class="btn btn-primary cart">Add To Cart</button>'
+    }
+    localStorage.clear();
+    cart = {};
+    updateCart(cart);
+}
+
+  function updatePopover(cart) {
+    var popStr = "";
+    popStr = popStr + "<div class='mx-2 my-2'>";
+    var i=1;
+    for(var item in cart) {
+      if(cart[item][0] != 0) {
+        popStr = popStr + "<b>" + i + "</b>. ";
+        popStr = popStr + document.getElementById('name' + item).innerHTML.slice(0, 19) + "... QTY: " + cart[item][0] + "<br>";
+        i = i+1;
+      }
+    }
+    popStr = popStr + "</div>"
+    document.getElementById('popcart').setAttribute('data-bs-content', popStr);
+    $(document).ready(function(){
+      $('[data-bs-toggle="popover"]').popover('show');
+    });
+  }
+
+  function updateCart(cart) {
+    for(var item in cart) {
+      document.getElementById('div' + item).innerHTML = "<button id='minus" + item + "'style='margin-bottom: -1px' class='btn btn-primary minus mx-auto'>-</button> <span id='val" + item + "''>" + cart[item][0] + "</span> <button id='plus" + item + "'style='margin-bottom: -1px' class='btn btn-primary plus mx-auto'> + </button>";
+    }
+    localStorage.setItem('cart', JSON.stringify(cart));
+    document.getElementById('cart-size').innerHTML = Object.keys(cart).length;
+    updatePopover(cart);
+    updateButton(cart);
+  }
+
+  $('.divpr').on("click", "button.minus", function() {
+    a = this.id.slice(7, );
+    if(cart['pr' + a][0] <= 1) {
+      cart['pr' + a][0] = 0;
+    } else {
+      cart['pr' + a][0] = cart['pr' + a][0] - 1;
+    }
+    document.getElementById('valpr' + a).innerHTML = cart['pr' + a][0];
+    updateCart(cart);
+  });
+  $('.divpr').on("click", "button.plus", function() {
+      a = this.id.slice(6, );
+      if(cart['pr' + a] == undefined || cart['pr' + a][0] == NaN || cart['pr' + a][0] == null) {
+        cart['pr' + a][0] = 1;
+      } else {
+        cart['pr' + a][0] = cart['pr' + a][0] + 1;
+      }
+      document.getElementById('valpr' + a).innerHTML = cart['pr' + a][0];
+      updateCart(cart);
+  });
+
+  </script>
+
+{% endblock %}

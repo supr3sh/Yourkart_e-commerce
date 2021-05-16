@@ -1,0 +1,28 @@
+{% extends 'layout.html' %}
+{% block title %} Yourkart | blog {% endblock %}
+{% block body %} 
+<div class="container">
+<div class="row my-2">
+  {% for post in posts %}
+    <div class="col-md-6">
+      <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+        <div class="col p-4 d-flex flex-column position-static">
+          <strong class="d-inline-block mb-2 text-primary">{{post.title}}</strong>
+          <h3 class="mb-0">{{post.head0}}</h3>
+          <div class="mb-1 text-muted">{{post.pub_date}} By {{post.pub_by}}</div>
+          <p class="card-text mb-auto">{{post.chead0|slice:"0:150"}}...</p>
+          <a href="/blog/blogPost/{{post.post_id}}" class="stretched-link">Continue reading</a>
+        </div>
+        <div class="col-auto d-none d-lg-block">
+          <img src="/media/{{post.thumbnail}}" height="250" width="200" class="bd-placeholder-img">
+        </div>
+      </div>
+    </div>
+    {% if forloop.counter|divisibleby:2 %}
+    </div><div class="row my-2">
+    {% endif %}
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}
